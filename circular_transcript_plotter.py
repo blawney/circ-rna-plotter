@@ -6,6 +6,7 @@ Run with -h arg to see input arguments
 '''
 
 import argparse
+import functools
 
 import matplotlib as mpl
 mpl.use('Agg')
@@ -190,7 +191,7 @@ def orient_exons(reads_df, gene_gtf, primary_junction):
 
 	# exon_series is a Series object where each entry is a list of Exon objects.
 	# This turns it into a list of Exon objects
-	exon_list = list(reduce(lambda x,y: set(x).union(set(y)), exon_series))
+	exon_list = list(functools.reduce(lambda x,y: set(x).union(set(y)), exon_series))
 
 	# now order the exons by the start position.  Reverse if the transcript is on the minus strand
 	exon_list.sort(key=lambda x: x.start)
@@ -309,7 +310,7 @@ def orient_exons(reads_df, gene_gtf, primary_junction):
 			e2 = e2s[0]
 			junction_to_exons_map[js] = [e1,e2]
 		else:
-			print exon_list
+			print(exon_list)
 			raise Exception('Ambiguous junction')
 
 	# It is possible to have "conflicting" transcripts-- i.e. those that support different exon junctions within the same 
@@ -620,13 +621,13 @@ if __name__ == '__main__':
 				(junction_table['junction_cdf.x'] > junction_cdf_threshold)]
 
 
-	print "Number of high-quality junctions: %s" % high_quality_junctions.shape[0]
+	print("Number of high-quality junctions: %s" % high_quality_junctions.shape[0])
+
 	# load the table of reads (truncated here):
 	reads = pd.read_table(reads_file)
-	#reads = pd.read_table('dup_output.tsv')
-	print 'Total table size: %s' % reads.shape[0]
+	print('Total table size: %s' % reads.shape[0])
 	reads = reads.ix[reads['junction'].isin(high_quality_junctions['junction'])]
-	print 'Total table size (after subset): %s' % reads.shape[0]
+	print('Total table size (after subset): %s' % reads.shape[0])
 	reads = reads.apply(process_reads,axis=1)
 	#sys.exit(1)
 	# load GTF, extract a column for the gene name, and subset to keep only exons:
@@ -636,7 +637,7 @@ if __name__ == '__main__':
 
 	for j in high_quality_junctions['junction']:
 
-		print 'Image for %s' % j
+		print('Image for %s' % j)
 		reads_subset = reads.ix[reads['junction'] == j]
 
 		gene = j.split('|')[1].split(':')[0]
